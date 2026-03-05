@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"sync"
 	"time"
 )
 
@@ -38,11 +39,16 @@ func (u User) getActivityInfo() string {
 func main() {
 	rand.Seed(time.Now().Unix())
 
-	users := generateUsers(1000)
+	wg := &sync.WaitGroup{}
 
+	users := generateUsers(1000)
+	
 	for _, user := range users {
-		saveUserInfo(user)
+		wg.Add(1)
+		go saveUserInfo(user, wg)
 	}
+
+	wg.Wait()
 	// u := User{
 	// 	id: 1,
 	// 	email: "olof@gmail.com",
@@ -77,7 +83,8 @@ func generateUsers(count int) []User {
 	return users
 }
 
-func saveUserInfo(user User) error {
+func saveUserInfo(user User, wg *sync.WaitGroup) error {
+	time.Sleep(time.Millisecond * 10)
 	fmt.Printf("WRITING FILE FOR USER ID: %d\n", user.id)
 
 	filename := fmt.Sprintf("logs/uid_%d.txt", user.id)
@@ -86,7 +93,12 @@ func saveUserInfo(user User) error {
 		return err
 	}
 	_, err = file.WriteString(user.getActivityInfo())
-	return err
+	if err != nil {
+		return err
+	}
+
+	wg.Done()
+	return nil
 
 }
 

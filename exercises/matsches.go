@@ -1,4 +1,4 @@
-package matshes
+package main	
 
 import (
   "strings"
