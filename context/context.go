@@ -17,7 +17,7 @@ func parse (ctx context.Context) {
 	for {
 		select {
 		case <-time.After(time.Second * 2):
-			fmt.Println("Parding completed")
+			fmt.Println("Parsing completed")
 		case <-ctx.Done():
 			fmt.Println("deadline exceded")
 			return
