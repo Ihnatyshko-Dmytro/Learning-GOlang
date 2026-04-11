@@ -1,6 +1,7 @@
-package main
+package coincap
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -10,20 +11,13 @@ import (
 func main() {
 	client := &http.Client{}
 
-	// 1. Формуємо URL (зверніть увагу: без фігурних дужок)
-	url := "https://rest.coincap.io/v3/price/bysymbol/BTC"
+	url := "https://rest.coincap.io/v3/assets/bitcoin"
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// 2. Додаємо заголовки ТОЧНО як у документації
-	// Важливо: Bearer [ПРОБІЛ] Ключ
-	req.Header.Set("accept", "application/json")
-	req.Header.Set("Authorization", "Bearer 1qaz@WSX3edc")
-
-	// 3. Виконуємо запит
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatal(err)
@@ -37,5 +31,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(string(body))
+	var r AssetResponse
+	if err = json.Unmarshal(body, &r); err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(r.Asset.Info())
+	// for _, asset := range r.Data {
+	// 	fmt.Println(asset.Info())
+	// }
 }
